@@ -1,7 +1,8 @@
 const main = document.querySelector("main");
 const buttonDisplay = document.querySelector(".display");
 const form = document.querySelector("form");
-
+const submit = document.querySelector(".submit");
+const select = document.querySelector("#read");
 const myLibrary = [];
 
 function Book(title, author, pages, read) {
@@ -14,6 +15,10 @@ function Book(title, author, pages, read) {
   this.read = read;
   this.id = crypto.randomUUID();
 }
+
+Book.prototype.updateRead = function (value) {
+  this.read = value;
+};
 
 function addBookToLibrary(title, author, pages, read) {
   const newBook = new Book(title, author, pages, read);
@@ -28,12 +33,14 @@ function displayBooks() {
     const newRead = document.createElement("select");
     const yesOption = document.createElement("option");
     const noOption = document.createElement("option");
+    const deleteCard = document.createElement("button");
 
     newTitle.textContent = myLibrary[i].title;
     newAuthor.textContent = myLibrary[i].author;
-    newPage.textContent = myLibrary[i].pages + " " + myLibrary[i].read;
+    newPage.textContent = myLibrary[i].pages;
     yesOption.textContent = "Read";
     noOption.textContent = "Not Read";
+    deleteCard.textContent = "Delete Book";
 
     if (myLibrary[i].read === "have read") {
       yesOption.selected = true;
@@ -48,26 +55,21 @@ function displayBooks() {
     newDiv.appendChild(newRead);
     newRead.appendChild(yesOption);
     newRead.appendChild(noOption);
+    newDiv.appendChild(deleteCard);
 
     newDiv.classList.add("card");
+
+    deleteCard.addEventListener("click", () => {
+      myLibrary.splice(i, 1);
+
+      main.removeChild(newDiv);
+    });
+
+    newRead.addEventListener("change", (e) => {
+      myLibrary[i].updateRead(e.target.value);
+    });
   }
 }
-
-addBookToLibrary(
-  "The Hobbit",
-  "by J.R.R. Tolkien,",
-  "295 pages,",
-  "not read yet"
-);
-addBookToLibrary(
-  "The Way of Kings",
-  "by Brandon Sanderson",
-  "1,007 pages,",
-  "have read"
-);
-
-displayBooks(myLibrary);
-// console.log(myLibrary);
 
 buttonDisplay.addEventListener("click", () => {
   if (form.classList.contains("hidden")) {
@@ -76,3 +78,45 @@ buttonDisplay.addEventListener("click", () => {
     form.classList.add("hidden");
   }
 });
+
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const titleInput = document.querySelector("#title");
+  const authorInput = document.querySelector("#author");
+  const pagesInput = document.querySelector("#page");
+  const readInput = document.querySelector("#read");
+
+  addBookToLibrary(
+    titleInput.value,
+    authorInput.value,
+    pagesInput.value,
+    readInput.value
+  );
+
+  main.querySelectorAll(".card").forEach((card) => {
+    card.remove();
+  });
+
+  displayBooks();
+
+  form.reset();
+  form.classList.add("hidden");
+});
+
+addBookToLibrary(
+  "The Hobbit",
+  "by J.R.R. Tolkien,",
+  "295 pages",
+  "not read yet"
+);
+addBookToLibrary(
+  "The Way of Kings",
+  "by Brandon Sanderson",
+  "1,007 pages",
+  "have read"
+);
+
+displayBooks(myLibrary);
+
+console.log(myLibrary);
