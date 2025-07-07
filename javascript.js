@@ -15,7 +15,7 @@ class Book {
 }
 
 const addBookToLibrary = function (title, author, pages, read) {
-  const newBook = new Book(title, author, pages, read);
+  const newBook = new Book(title, author, `${pages} pages`, read);
   myLibrary.push(newBook);
 };
 
@@ -86,15 +86,31 @@ const buttonHandlers = (function () {
   form.addEventListener("submit", (e) => {
     e.preventDefault();
 
-    const titleInput = document.querySelector("#title");
-    const authorInput = document.querySelector("#author");
-    const pagesInput = document.querySelector("#page");
+    let allValid = true;
+
+    const inputs = [
+      document.querySelector("#title"),
+      document.querySelector("#author"),
+      document.querySelector("#page"),
+    ];
+
+    inputs.forEach((element) => {
+      if (!element.validity.valid) {
+        showError(element);
+        allValid = false;
+      } else {
+        removeError(element);
+      }
+    });
+
+    if (!allValid) return;
+
     const readInput = document.querySelector("#read");
 
     addBookToLibrary(
-      titleInput.value,
-      authorInput.value,
-      pagesInput.value,
+      inputs[0].value,
+      inputs[1].value,
+      inputs[2].value,
       readInput.value
     );
 
@@ -106,17 +122,70 @@ const buttonHandlers = (function () {
 })();
 
 const templateBooks = (function () {
-  addBookToLibrary(
-    "The Hobbit",
-    "by J.R.R. Tolkien,",
-    "295 pages",
-    "not read yet"
-  );
+  addBookToLibrary("The Hobbit", "by J.R.R. Tolkien,", "295", "not read yet");
   addBookToLibrary(
     "The Way of Kings",
     "by Brandon Sanderson",
-    "1,007 pages",
+    "1,007",
     "have read"
   );
   displayBooks();
 })();
+
+const validation = (function () {
+  const container = document.querySelector(".grid");
+
+  container.addEventListener("input", (event) => {
+    const input = event.target;
+    if (["title", "author", "page"].includes(input.id)) {
+      input.validity.valid ? removeError(input) : showError(input);
+    }
+  });
+})();
+
+const removeError = function (input) {
+  const errorDiv = input.nextElementSibling;
+  if (input.id === "title") {
+    errorDiv.textContent = "";
+    errorDiv.classList.remove("active");
+  }
+  if (input.id === "author") {
+    errorDiv.textContent = "";
+    errorDiv.classList.remove("active");
+  }
+  if (input.id === "page") {
+    errorDiv.textContent = "";
+    errorDiv.classList.remove("active");
+  }
+};
+
+const showError = function (input) {
+  const errorDiv = input.nextElementSibling;
+
+  if (input.id === "title") {
+    errorDiv.classList.add("active");
+    if (input.validity.tooShort) {
+      errorDiv.textContent = `Title should be at least ${input.minLength} characters; you entered ${input.value.length}.`;
+    } else if (input.validity.valueMissing) {
+      errorDiv.textContent = `Please enter a title`;
+    }
+  }
+  if (input.id === "author") {
+    errorDiv.classList.add("active");
+    if (input.validity.tooShort) {
+      errorDiv.textContent = `Author should be at least ${input.minLength} characters; you entered ${input.value.length}.`;
+    } else if (input.validity.valueMissing) {
+      errorDiv.textContent = `Please enter the author's name`;
+    }
+  }
+  if (input.id === "page") {
+    errorDiv.classList.add("active");
+    if (input.validity.typeMismatch) {
+      errorDiv.textContent = `Please enter only numbers`;
+    } else if (input.validity.rangeUnderflow) {
+      errorDiv.textContent = `Please enter only positive numbers`;
+    } else if (input.validity.valueMissing) {
+      errorDiv.textContent = `Please enter the number of pages`;
+    }
+  }
+};

@@ -152,6 +152,7 @@ button.display {
 input {
   border-radius: 10px;
   border: none;
+  width: 200px;
 }
 input:focus,
 input:active {
@@ -167,4 +168,20 @@ button {
 }
 button:hover {
   background-color: var(--light-pink);
+}
+.errorMessage {
+  background-color: red;
+  color: white;
+  position: relative;
+  bottom: 2px;
+  text-overflow: ellipsis;
+  width: 200px;
+  text-align: center;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  align-content: center;
+}
+
+.active {
+  padding: 2px;
 }
